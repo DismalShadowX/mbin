@@ -19,6 +19,9 @@ use App\Factory\EntryFactory;
 use App\Factory\PostCommentFactory;
 use App\Factory\PostFactory;
 use App\Message\ActivityPub\Inbox\UpdateMessage;
+use App\Message\ActivityPub\Outbox\GenericAnnounceMessage;
+use App\Message\Contracts\MessageInterface;
+use App\MessageHandler\MbinMessageHandler;
 use App\Repository\ApActivityRepository;
 use App\Service\ActivityPub\ApObjectExtractor;
 use App\Service\ActivityPubManager;
@@ -30,9 +33,10 @@ use App\Service\PostManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
-class UpdateHandler
+class UpdateHandler extends MbinMessageHandler
 {
     private array $payload;
 
@@ -51,11 +55,21 @@ class UpdateHandler
         private readonly ApObjectExtractor $objectExtractor,
         private readonly MessageManager $messageManager,
         private readonly LoggerInterface $logger,
+        private readonly MessageBusInterface $bus,
     ) {
+        parent::__construct($this->entityManager);
     }
 
     public function __invoke(UpdateMessage $message): void
     {
+        $this->workWrapper($message);
+    }
+
+    public function doWork(MessageInterface $message): void
+    {
+        if (!($message instanceof UpdateMessage)) {
+            throw new \LogicException();
+        }
         $this->payload = $message->payload;
 
         try {
@@ -71,35 +85,38 @@ class UpdateHandler
         }
 
         $object = $this->entityManager->getRepository($object['type'])->find((int) $object['id']);
-
-        if (Entry::class === \get_class($object)) {
+        if ($object instanceof Entry) {
             $this->editEntry($object, $actor);
-        } elseif (EntryComment::class === \get_class($object)) {
+            if (null === $object->magazine->apId) {
+                $this->bus->dispatch(new GenericAnnounceMessage($object->magazine->getId(), $message->payload, $actor->apInboxUrl));
+            }
+        } elseif ($object instanceof EntryComment) {
             $this->editEntryComment($object, $actor);
-        } elseif (Post::class === \get_class($object)) {
+            if (null === $object->magazine->apId) {
+                $this->bus->dispatch(new GenericAnnounceMessage($object->magazine->getId(), $message->payload, $actor->apInboxUrl));
+            }
+        } elseif ($object instanceof Post) {
             $this->editPost($object, $actor);
-        } elseif (PostComment::class === \get_class($object)) {
+            if (null === $object->magazine->apId) {
+                $this->bus->dispatch(new GenericAnnounceMessage($object->magazine->getId(), $message->payload, $actor->apInboxUrl));
+            }
+        } elseif ($object instanceof PostComment) {
             $this->editPostComment($object, $actor);
-        } elseif (Message::class === \get_class($object)) {
+            if (null === $object->magazine->apId) {
+                $this->bus->dispatch(new GenericAnnounceMessage($object->magazine->getId(), $message->payload, $actor->apInboxUrl));
+            }
+        } elseif ($object instanceof Message) {
             $this->editMessage($object, $actor);
         }
-
-        // Dead-code introduced by Ernest "Temp disable handler dispatch", in commit:
-        // 4573e87f91923b9a5758e0dfacb3870d55ef1166
-        //
-        //        if (null === $object->magazine->apId) {
-        //            $this->bus->dispatch(
-        //                new \App\Message\ActivityPub\Outbox\UpdateMessage(
-        //                    $actor->getId(),
-        //                    $object->getId(),
-        //                    get_class($object)
-        //                )
-        //            );
-        //        }
     }
 
     private function editEntry(Entry $entry, User $user): void
     {
+        if (!$this->entryManager->canUserEditEntry($entry, $user)) {
+            $this->logger->warning('User {u} tried to edit entry {et} ({eId}), but is not allowed to', ['u' => $user->apId ?? $user->username, 'et' => $entry->title, 'eId' => $entry->getId()]);
+
+            return;
+        }
         $dto = $this->entryFactory->createDto($entry);
 
         $dto->title = $this->payload['object']['name'];
@@ -110,6 +127,11 @@ class UpdateHandler
 
     private function editEntryComment(EntryComment $comment, User $user): void
     {
+        if (!$this->entryCommentManager->canUserEditComment($comment, $user)) {
+            $this->logger->warning('User {u} tried to edit entry comment {et} ({eId}), but is not allowed to', ['u' => $user->apId ?? $user->username, 'et' => $comment->getShortTitle(), 'eId' => $comment->getId()]);
+
+            return;
+        }
         $dto = $this->entryCommentFactory->createDto($comment);
 
         $this->extractChanges($dto);
@@ -119,6 +141,11 @@ class UpdateHandler
 
     private function editPost(Post $post, User $user): void
     {
+        if (!$this->postManager->canUserEditPost($post, $user)) {
+            $this->logger->warning('User {u} tried to edit post {pt} ({pId}), but is not allowed to', ['u' => $user->apId ?? $user->username, 'pt' => $post->getShortTitle(), 'pId' => $post->getId()]);
+
+            return;
+        }
         $dto = $this->postFactory->createDto($post);
 
         $this->extractChanges($dto);
@@ -128,6 +155,11 @@ class UpdateHandler
 
     private function editPostComment(PostComment $comment, User $user): void
     {
+        if (!$this->postCommentManager->canUserEditPostComment($comment, $user)) {
+            $this->logger->warning('User {u} tried to edit post comment {pt} ({pId}), but is not allowed to', ['u' => $user->apId ?? $user->username, 'pt' => $comment->getShortTitle(), 'pId' => $comment->getId()]);
+
+            return;
+        }
         $dto = $this->postCommentFactory->createDto($comment);
 
         $this->extractChanges($dto);

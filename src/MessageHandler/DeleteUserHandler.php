@@ -7,6 +7,7 @@ namespace App\MessageHandler;
 use App\DTO\UserDto;
 use App\Entity\User;
 use App\Message\ActivityPub\Outbox\DeliverMessage;
+use App\Message\Contracts\MessageInterface;
 use App\Message\DeleteUserMessage;
 use App\Service\ActivityPub\Wrapper\DeleteWrapper;
 use App\Service\ImageManager;
@@ -18,7 +19,7 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
-class DeleteUserHandler
+class DeleteUserHandler extends MbinMessageHandler
 {
     private ?User $user;
 
@@ -30,10 +31,19 @@ class DeleteUserHandler
         private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $entityManager
     ) {
+        parent::__construct($this->entityManager);
     }
 
     public function __invoke(DeleteUserMessage $message): void
     {
+        $this->workWrapper($message);
+    }
+
+    public function doWork(MessageInterface $message): void
+    {
+        if (!($message instanceof DeleteUserMessage)) {
+            throw new \LogicException();
+        }
         $this->user = $this->entityManager
             ->getRepository(User::class)
             ->find($message->id);
@@ -54,6 +64,10 @@ class DeleteUserHandler
         // note: email cannot be null. For remote accounts email is set to their 'handle@domain.tld' who knows why...
         $userDto = UserDto::create($this->user->username, email: $this->user->username, createdAt: $this->user->createdAt);
         $userDto->plainPassword = ''.time();
+        if (!$isLocal) {
+            $userDto->apId = $this->user->apId;
+            $userDto->apProfileId = $this->user->apProfileId;
+        }
 
         try {
             $this->userManager->detachAvatar($this->user);
@@ -80,19 +94,24 @@ class DeleteUserHandler
         $this->entityManager->remove($this->user);
         $this->entityManager->flush();
 
+        // recreate a user with the same name, so this handle is blocked
+        $user = $this->userManager->create($userDto, verifyUserEmail: false, rateLimit: false);
+        $user->isDeleted = true;
+        $user->markedForDeletionAt = null;
+        $user->isVerified = false;
+
         if ($isLocal) {
-            // recreate a user with the same name, so this handle is blocked
-            $user = $this->userManager->create($userDto, verifyUserEmail: false, rateLimit: false);
-            $user->isDeleted = true;
-            $user->markedForDeletionAt = null;
-            $user->isVerified = false;
             $user->privateKey = $privateKey;
             $user->publicKey = $publicKey;
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
+        }
 
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        if ($isLocal) {
             $this->sendDeleteMessages($inboxes, $user);
         }
+
         $this->entityManager->commit();
     }
 
