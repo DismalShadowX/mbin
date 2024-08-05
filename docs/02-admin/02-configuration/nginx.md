@@ -195,6 +195,13 @@ server {
 }
 ```
 
+> [!TIP]
+> If have multiple PHP versions installed. You can switch the PHP version that Nginx is using (`/var/run/php/php-fpm.sock`) via the the following command:
+> `sudo update-alternatives --config php-fpm.sock`
+>
+> Same is true for the PHP CLI command (`/usr/bin/php`), via the following command:
+> `sudo update-alternatives --config php`
+
 > [!WARNING]
 > If also want to also configure your `www.domain.tld` subdomain; our advise is to use a HTTP 301 redirect from the `www` subdomain towards the root domain. Do _NOT_ try to setup a double instance (you want to _avoid_ that ActivityPub will see `www` as a separate instance). See Nginx example below
 
@@ -235,3 +242,51 @@ Restart (or reload) NGINX:
 ```bash
 sudo systemctl restart nginx
 ```
+
+## Media reverse proxy
+
+we suggest that you do not use this configuration:
+```dotenv
+KBIN_STORAGE_URL=https://mbin.domain.tld/media
+```
+
+Instead we suggest to use a subdomain for serving your media files:
+```dotenv
+KBIN_STORAGE_URL=https://media.mbin.domain.tld
+```
+
+That way you can let nginx cache media assets and seamlessly switch to an object storage provider later. 
+
+```bash
+sudo nano /etc/nginx/sites-available/mbin-media.conf
+```
+
+```nginx
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=CACHE:10m inactive=7d max_size=10g;
+
+server {
+    server_name media.mbin.domain.tld;
+    root /var/www/mbin/public/media;
+
+    listen 80;
+}
+```
+
+Be sure that the `root /path` is correct (maybe you use `/var/www/kbin/public`).
+
+Enable the NGINX site, using a symlink:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/mbin-media.conf /etc/nginx/sites-enabled/
+```
+
+> [!TIP]
+> before reloading nginx in a production environment you can run `nginx -t` to test your configuration.
+> If your configuration is faulty and you run `systemctl reload nginx` it will crash the webserver.
+
+Run `systemctl reload nginx` so the site is loaded.
+For it to be a usable https site you have to run `certbot --nginx` and select the media domain or supply your certificates manually.
+
+> [!TIP]
+> don't forget to enable http2 by adding `http2 on;` after certbot ran (underneath the `listen 443 ssl;` line)
+

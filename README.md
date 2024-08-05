@@ -38,8 +38,9 @@ For developers:
 
 ## Instances
 
-- [List of instances](https://fedidb.org/software/mbin)
-- [Alternative listing of instances](https://mbin.fediverse.observer/list)
+- [List of instances](https://joinmbin.org/servers)
+- [Alternative list of instances at fedidb.org](https://fedidb.org/software/mbin)
+- [Alternative list of instances at fediverse.observer](https://mbin.fediverse.observer/list)
 
 ![Mbin logo](docs/images/mbin.png)
 
@@ -83,13 +84,6 @@ For developers:
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/asdfzdfj">
-                    <img src="https://avatars.githubusercontent.com/u/20770492?v=4" width="100;" alt="asdfzdfj"/>
-                    <br />
-                    <sub><b>asdfzdfj</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/BentiGorlich">
                     <img src="https://avatars.githubusercontent.com/u/25664458?v=4" width="100;" alt="BentiGorlich"/>
                     <br />
@@ -97,19 +91,26 @@ For developers:
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/SzymonKaminski">
-                    <img src="https://avatars.githubusercontent.com/u/8536735?v=4" width="100;" alt="SzymonKaminski"/>
+                <a href="https://github.com/asdfzdfj">
+                    <img src="https://avatars.githubusercontent.com/u/20770492?v=4" width="100;" alt="asdfzdfj"/>
                     <br />
-                    <sub><b>SzymonKaminski</b></sub>
+                    <sub><b>asdfzdfj</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/nobodyatroot">
                     <img src="https://avatars.githubusercontent.com/u/35878315?v=4" width="100;" alt="nobodyatroot"/>
                     <br />
                     <sub><b>debounced</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/SzymonKaminski">
+                    <img src="https://avatars.githubusercontent.com/u/8536735?v=4" width="100;" alt="SzymonKaminski"/>
+                    <br />
+                    <sub><b>SzymonKaminski</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -120,17 +121,17 @@ For developers:
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/simonrcodrington">
-                    <img src="https://avatars.githubusercontent.com/u/12083338?v=4" width="100;" alt="simonrcodrington"/>
-                    <br />
-                    <sub><b>Simon Codrington</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/weblate">
                     <img src="https://avatars.githubusercontent.com/u/1607653?v=4" width="100;" alt="weblate"/>
                     <br />
                     <sub><b>Weblate (bot)</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/simonrcodrington">
+                    <img src="https://avatars.githubusercontent.com/u/12083338?v=4" width="100;" alt="simonrcodrington"/>
+                    <br />
+                    <sub><b>Simon Codrington</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -266,12 +267,21 @@ For developers:
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/jwr1">
+                    <img src="https://avatars.githubusercontent.com/u/47087725?v=4" width="100;" alt="jwr1"/>
+                    <br />
+                    <sub><b>John Wesley</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/DismalShadowX">
                     <img src="https://avatars.githubusercontent.com/u/24910097?v=4" width="100;" alt="DismalShadowX"/>
                     <br />
                     <sub><b>Nathan Sparrow</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/privacyguard">
                     <img src="https://avatars.githubusercontent.com/u/92675882?v=4" width="100;" alt="privacyguard"/>

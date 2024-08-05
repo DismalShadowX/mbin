@@ -18,10 +18,12 @@ use App\Event\Entry\EntryDeletedEvent;
 use App\Event\Entry\EntryEditedEvent;
 use App\Event\Entry\EntryPinEvent;
 use App\Event\Entry\EntryRestoredEvent;
+use App\Exception\PostingRestrictedException;
 use App\Exception\TagBannedException;
 use App\Exception\UserBannedException;
 use App\Factory\EntryFactory;
 use App\Message\DeleteImageMessage;
+use App\Message\EntryEmbedMessage;
 use App\Repository\EntryRepository;
 use App\Repository\ImageRepository;
 use App\Service\ActivityPub\ApHttpClient;
@@ -68,6 +70,7 @@ class EntryManager implements ContentManagerInterface
      * @throws TagBannedException
      * @throws UserBannedException
      * @throws TooManyRequestsHttpException
+     * @throws PostingRestrictedException
      * @throws \Exception                   if title, body and image are empty
      */
     public function create(EntryDto $dto, User $user, bool $rateLimit = true, bool $stickyIt = false): Entry
@@ -85,6 +88,10 @@ class EntryManager implements ContentManagerInterface
 
         if ($this->tagManager->isAnyTagBanned($this->tagManager->extract($dto->body))) {
             throw new TagBannedException();
+        }
+
+        if ($dto->magazine->isActorPostingRestricted($user)) {
+            throw new PostingRestrictedException($dto->magazine, $user);
         }
 
         $this->logger->debug('creating entry from dto');
@@ -173,11 +180,12 @@ class EntryManager implements ContentManagerInterface
         return $entryHost === $userHost || $userHost === $magazineHost || $entry->magazine->userIsModerator($user);
     }
 
-    public function edit(Entry $entry, EntryDto $dto): Entry
+    public function edit(Entry $entry, EntryDto $dto, User $editedBy): Entry
     {
         Assert::same($entry->magazine->getId(), $dto->magazine->getId());
 
         $entry->title = $dto->title;
+        $oldUrl = $entry->url;
         $entry->url = $dto->url;
         $entry->body = $dto->body;
         $entry->lang = $dto->lang;
@@ -213,7 +221,11 @@ class EntryManager implements ContentManagerInterface
             $this->bus->dispatch(new DeleteImageMessage($oldImage->getId()));
         }
 
-        $this->dispatcher->dispatch(new EntryEditedEvent($entry));
+        if ($entry->url !== $oldUrl) {
+            $this->bus->dispatch(new EntryEmbedMessage($entry->getId()));
+        }
+
+        $this->dispatcher->dispatch(new EntryEditedEvent($entry, $editedBy));
 
         return $entry;
     }

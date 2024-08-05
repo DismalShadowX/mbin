@@ -146,8 +146,6 @@ copy_url_to_fediverse: Αντιγραφή πρωτότυπου URL
 share_on_fediverse: Κοινοποίηση στο Fediverse
 are_you_sure: Είσαι σίγουρος;
 reason: Αιτιολογία
-edit_link: Επεξεργασία συνδέσμου
-edit_photo: Επεξεργασία φωτογραφίας
 delete: Διαγραφή
 edit_post: Επεξεργασία ανάρτησης
 edit_comment: Αποθήκευση αλλαγών
@@ -263,7 +261,6 @@ admin_panel: Πίνακας Διαχειριστή
 dashboard: Ταμπλό
 contact_email: Email επικοινωνίας
 pages: Σελίδες
-inactive: Ανενεργό
 type_search_term: Πληκτρολογήστε τον όρο αναζήτησης
 registrations_enabled: Οι εγγραφές ενεργοποιήθηκαν
 registration_disabled: Οι εγγραφές απενεργοποιήθηκαν
@@ -287,7 +284,6 @@ return: Επιστροφή
 boost: Ενίσχυση
 1d: 1 ημέρα
 edit: Επεξεργασία
-edit_article: Επεξεργασία νήματος
 notify_on_new_entry_reply: Ειδοποίησέ με για σχόλια στα νήματά μου
 1y: 1 έτος
 general: Γενικά

@@ -170,9 +170,6 @@ edit: Editar
 are_you_sure: ¿Estás segura/o?
 moderate: Moderar
 reason: Motivo
-edit_link: Editar enlace
-edit_article: Editar hilo
-edit_photo: Editar foto
 delete: Borrar
 edit_post: Editar publicación
 show_users_avatars: Mostrar el avatar del/a usuario/a
@@ -339,7 +336,6 @@ instance: Instancia
 registrations_enabled: Registro activado
 pages: Páginas
 FAQ: FAQ
-inactive: Inactivo
 type_search_term: Escribir término de búsqueda
 federation_enabled: Federación activada
 registration_disabled: Inscripciones desactivadas

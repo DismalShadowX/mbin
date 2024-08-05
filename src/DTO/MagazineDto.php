@@ -38,6 +38,7 @@ class MagazineDto
     public int $postCount = 0;
     public int $postCommentCount = 0;
     public bool $isAdult = false;
+    public bool $isPostingRestrictedToMods = false;
     public ?bool $isUserSubscribed = null;
     public ?bool $isBlockedByUser = null;
     public ?array $tags = null;
@@ -47,6 +48,8 @@ class MagazineDto
     public ?string $apId = null;
     public ?string $apProfileId = null;
     public ?string $apFeaturedUrl = null;
+    public ?string $serverSoftware = null;
+    public ?string $serverSoftwareVersion = null;
     private ?int $id = null;
 
     public function getId(): ?int
