@@ -454,7 +454,8 @@ sidebar_sections_local_only: Restrict "Random X" and "Active People" sections to
   only
 account_deletion_title: Account deletion
 account_deletion_description: Your account will be deleted in 30 days unless you choose
-  to delete the account immediately. The account cannot be restored once deleted.
+  to delete the account immediately. To restore your account within 30 days, login with
+  the same user credentials or contact an administrator.
 account_deletion_button: Delete Account
 account_deletion_immediate: Delete immediately
 more_from_domain: More from domain
@@ -743,6 +744,7 @@ position_top: Top
 pending: Pending
 flash_thread_new_error: Thread could not be created. Something went wrong.
 flash_thread_tag_banned_error: Thread could not be created. The content is not allowed.
+flash_image_download_too_large_error: Image could not be created, it is too big (max size %bytes%)
 flash_email_was_sent: Email has been successfully sent.
 flash_email_failed_to_sent: Email could not be sent.
 flash_post_new_success: Post has been successfully created.
@@ -886,3 +888,5 @@ admin_users_active: Active
 admin_users_inactive: Inactive
 admin_users_suspended: Suspended
 admin_users_banned: Banned
+user_verify: Activate account
+max_image_size: Maximum file size

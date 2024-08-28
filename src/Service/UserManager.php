@@ -252,6 +252,14 @@ readonly class UserManager
         $this->verifier->handleEmailConfirmation($request, $user);
     }
 
+    public function adminUserVerify(User $user): void
+    {
+        $user->isVerified = true;
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
     public function toggleTheme(User $user): void
     {
         $user->toggleTheme();
@@ -329,8 +337,7 @@ readonly class UserManager
     public function deleteRequest(User $user, bool $immediately): void
     {
         if (!$immediately) {
-            $user->markedForDeletionAt = date_add(new \DateTime(), new \DateInterval('P30D'));
-            $user->isDeleted = true;
+            $user->softDelete();
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
@@ -347,8 +354,7 @@ readonly class UserManager
     public function removeDeleteRequest(User $user): void
     {
         if (null !== $user->markedForDeletionAt) {
-            $user->markedForDeletionAt = null;
-            $user->isDeleted = false;
+            $user->restore();
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();

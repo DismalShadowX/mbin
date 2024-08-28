@@ -31,6 +31,7 @@ use App\Service\SettingsManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
@@ -60,7 +61,13 @@ class ActivityHandler extends MbinMessageHandler
         if (!($message instanceof ActivityMessage)) {
             throw new \LogicException();
         }
+
         $payload = @json_decode($message->payload, true);
+
+        if (null === $payload) {
+            $this->logger->warning('activity message from was empty: {json}, ignoring it', ['json' => json_encode($message->payload)]);
+            throw new UnrecoverableMessageHandlingException('activity message from was empty');
+        }
 
         if ($message->request && $message->headers) {
             try {
@@ -76,6 +83,11 @@ class ActivityHandler extends MbinMessageHandler
 
                 return;
             }
+        }
+
+        if (null === $payload['id']) {
+            $this->logger->warning('activity message has no id field which is required: {json}', ['json' => json_encode($message->payload)]);
+            throw new UnrecoverableMessageHandlingException('activity message has no id field');
         }
 
         $idHost = parse_url($payload['id'], PHP_URL_HOST);
@@ -103,10 +115,10 @@ class ActivityHandler extends MbinMessageHandler
 
         try {
             if (isset($payload['actor']) || isset($payload['attributedTo'])) {
-                if (!$this->verifyInstanceDomain($payload['actor'] ?? $this->manager->getActorFromAttributedTo($payload['attributedTo']))) {
+                if (!$this->verifyInstanceDomain($payload['actor'] ?? $this->manager->getSingleActorFromAttributedTo($payload['attributedTo']))) {
                     return;
                 }
-                $user = $this->manager->findActorOrCreate($payload['actor'] ?? $this->manager->getActorFromAttributedTo($payload['attributedTo']));
+                $user = $this->manager->findActorOrCreate($payload['actor'] ?? $this->manager->getSingleActorFromAttributedTo($payload['attributedTo']));
             } else {
                 if (!$this->verifyInstanceDomain($payload['id'])) {
                     return;
