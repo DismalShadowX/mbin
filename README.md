@@ -52,9 +52,16 @@ For developers:
 
 - [Official repository on GitHub](https://github.com/MbinOrg/mbin)
 - [Matrix Space for discussions](https://matrix.to/#/#mbin:melroy.org)
-- [Unofficial magazine for discussions within the fediverse](https://kbin.run/m/Mdev)
 - [Translations](https://hosted.weblate.org/engage/mbin/)
 - [Contribution guidelines](CONTRIBUTING.md) - please read first, including before opening an issue!
+
+## Magazines
+
+Unofficial magazines:
+
+- [@mbinmeta@gehirneimer.de](https://gehirneimer.de/m/mbinmeta)
+- [@updates@kbin.melroy.org](https://kbin.melroy.org/m/updates)
+- [@AskMbin@fedia.io](https://fedia.io/m/AskMbin)
 
 ## Contributors
 
@@ -107,17 +114,17 @@ For developers:
 		</tr>
 		<tr>
             <td align="center">
-                <a href="https://github.com/cooperaj">
-                    <img src="https://avatars.githubusercontent.com/u/400210?v=4" width="100;" alt="cooperaj"/>
-                    <br />
-                    <sub><b>Adam Cooper</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/weblate">
                     <img src="https://avatars.githubusercontent.com/u/1607653?v=4" width="100;" alt="weblate"/>
                     <br />
                     <sub><b>Weblate (bot)</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/cooperaj">
+                    <img src="https://avatars.githubusercontent.com/u/400210?v=4" width="100;" alt="cooperaj"/>
+                    <br />
+                    <sub><b>Adam Cooper</b></sub>
                 </a>
             </td>
             <td align="center">
