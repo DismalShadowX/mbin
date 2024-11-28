@@ -56,14 +56,17 @@ class CreateHandler extends MbinMessageHandler
 
         if ($entity instanceof Message) {
             $receivers = $this->messageManager->findAudience($entity->thread);
-            $this->logger->info('sending message to {p}', ['p' => $receivers]);
+            $this->logger->info('[CreateHandler::doWork] sending message to {p}', ['p' => $receivers]);
         } else {
             $receivers = [
                 ...$this->userRepository->findAudience($entity->user),
                 ...$this->activityPubManager->createInboxesFromCC($activity, $entity->user),
-                ...$this->magazineRepository->findAudience($entity->magazine),
             ];
-            $this->logger->debug('sending create activity to {p}', ['p' => $receivers]);
+            if ('random' !== $entity->magazine->name) {
+                // only add the magazine subscribers if it is not the random magazine
+                $receivers = array_merge($receivers, $this->magazineRepository->findAudience($entity->magazine));
+            }
+            $this->logger->debug('[CreateHandler::doWork] Sending create activity to {p}', ['p' => $receivers]);
         }
         $this->deliverManager->deliver(array_filter(array_unique($receivers)), $activity);
     }
